@@ -1,0 +1,29 @@
+services:
+  jenkins:
+    image: taehyunnkim/jenkins-docker-aws:latest
+    restart: always
+    privileged: true
+    user: root
+    ports:
+      - 8080:8080
+      - 127.0.0.1:50000:50000
+    container_name: jenkins
+    volumes:
+      - /home/ubuntu/jenkins_compose/jenkins_configuration:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+    - AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
+    - REGION=$REGION
+  aws-credentials-generator-web:
+    image: taehyunnkim/odso-dashboard-app-cli:latest
+    container_name: aws-credentials-generator-web
+    ports:
+      - 127.0.0.1:7777:80
+  aws-credentials-generator-server:
+    image: taehyunnkim/odso-dashboard-app-api:latest
+    container_name: aws-credentials-generator-server
+    ports:
+      - 7778:7777
+    environment:
+    - AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
+    - REGION=$REGION
