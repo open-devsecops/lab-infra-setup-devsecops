@@ -5,7 +5,7 @@ variable "resource_group_name" {
 
 variable "location" {
   description = "The Azure region to deploy the resources."
-  default     = "East US"
+  default     = "West US"
 }
 
 variable "vnet_name" {
@@ -15,7 +15,7 @@ variable "vnet_name" {
 
 variable "vnet_address_space" {
   description = "The address space of the virtual network."
-  default     = "10.0.0.0/16"
+  default     = "10.0.0.0/16" //cidr_block
 }
 
 variable "subnet_name" {
@@ -25,7 +25,7 @@ variable "subnet_name" {
 
 variable "subnet_address_prefix" {
   description = "The address prefix for the subnet."
-  default     = "10.0.1.0/24"
+  default     = "10.0.1.0/24" //cidr_block
 }
 
 variable "public_ip_name" {

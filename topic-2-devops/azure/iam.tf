@@ -1,24 +1,155 @@
-resource "azurerm_role_definition" "custom_role" {
-  name        = "example-role"
-  scope       = "/subscriptions/e2270428-9eaa-4af7-b909-d190829450ae"  # Directly use your subscription ID here
-  description = "An example custom role definition."
+# # Data source to get the current Azure client
+# data "azurerm_client_config" "current" {}
+
+# # Managed Identity (aws role)
+# resource "azurerm_user_assigned_identity" "ec2_identity" {
+#   name                = "EC2Identity"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   location            = azurerm_resource_group.rg.location
+# }
+
+# # Managed Identity (aws role)
+# resource "azurerm_user_assigned_identity" "student_identity" {
+#   name                = "StudentIdentity"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   location            = azurerm_resource_group.rg.location
+# }
+
+# # Role Definition (aws policy)
+# resource "azurerm_role_definition" "ec2_role" {
+#   name        = "EC2Role"
+#   scope       = azurerm_resource_group.rg.id
+#   description = "Equivalent to AWS EC2 IAM Role"
+
+#   permissions {
+#     actions = [
+#       "Microsoft.ContainerRegistry/registries/pull/read",
+#       "Microsoft.ContainerRegistry/registries/push/write",
+#       "Microsoft.Resources/subscriptions/read",
+#       "Microsoft.Resources/subscriptions/resourceGroups/read"
+#     ]
+#   }
+
+#   assignable_scopes = [
+#     azurerm_resource_group.rg.id
+#   ]
+# }
+
+# # Role Definition (aws policy)
+# resource "azurerm_role_definition" "student_role" {
+#   name        = "StudentRole"
+#   scope       = azurerm_resource_group.rg.id
+#   description = "Equivalent to AWS Student IAM Role"
+
+#   permissions {
+#     actions = [
+#       "Microsoft.ContainerRegistry/registries/pull/read",
+#       "Microsoft.ContainerRegistry/registries/push/write",
+#       "Microsoft.Resources/subscriptions/read",
+#       "Microsoft.Resources/subscriptions/resourceGroups/read"
+#     ]
+#   }
+
+#   assignable_scopes = [
+#     azurerm_resource_group.rg.id
+#   ]
+# }
+
+# # bind a role definition to the vm managed identity
+# resource "azurerm_role_assignment" "ec2_role_assignment" {
+#   scope                = azurerm_resource_group.rg.id
+#   role_definition_id = azurerm_role_definition.ec2_role.role_definition_resource_id
+#   principal_id         = azurerm_user_assigned_identity.ec2_identity.principal_id
+# }
+
+# # bind a role definition to the student managed identity
+# resource "azurerm_role_assignment" "student_role_assignment" {
+#   scope                = azurerm_resource_group.rg.id
+#   role_definition_id = azurerm_role_definition.student_role.role_definition_resource_id
+#   principal_id         = azurerm_user_assigned_identity.student_identity.principal_id
+# }
+
+# # bind the student role definition to the vm managed identity (assume role)
+# resource "azurerm_role_assignment" "ec2_assume_student_role" {
+#   scope                = azurerm_resource_group.rg.id
+#   role_definition_id = azurerm_role_definition.student_role.role_definition_resource_id
+#   principal_id         = azurerm_user_assigned_identity.ec2_identity.principal_id
+# }
+
+# Data source to get the current Azure client
+data "azurerm_client_config" "current" {}
+
+# Managed Identity (aws role)
+resource "azurerm_user_assigned_identity" "vm_identity" {
+  name                = "VMIdentity"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+}
+
+# Managed Identity (aws role)
+resource "azurerm_user_assigned_identity" "student_identity" {
+  name                = "StudentIdentity"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+}
+
+# Role Definition (aws policy)
+resource "azurerm_role_definition" "vm_role" {
+  name        = "VMRole"
+  scope       = azurerm_resource_group.rg.id
+  description = "Equivalent to AWS EC2 IAM Role"
 
   permissions {
     actions = [
+      "Microsoft.ContainerRegistry/registries/pull/read",
+      "Microsoft.ContainerRegistry/registries/push/write",
       "Microsoft.Resources/subscriptions/read",
-      "Microsoft.Resources/subscriptions/resourceGroups/read",
+      "Microsoft.Resources/subscriptions/resourceGroups/read"
     ]
   }
 
   assignable_scopes = [
-    "/subscriptions/e2270428-9eaa-4af7-b909-d190829450ae"  # Again, using the subscription ID here
+    azurerm_resource_group.rg.id
   ]
 }
 
-resource "azurerm_role_assignment" "assign_role" {
-  principal_id         = azurerm_linux_virtual_machine.vm.identity[0].principal_id
-  role_definition_name = azurerm_role_definition.custom_role.name
-  scope           = azurerm_resource_group.rg.id
+# Role Definition (aws policy)
+resource "azurerm_role_definition" "student_role" {
+  name        = "StudentRole"
+  scope       = azurerm_resource_group.rg.id
+  description = "Equivalent to AWS Student IAM Role"
 
-  depends_on = [azurerm_linux_virtual_machine.vm]
+  permissions {
+    actions = [
+      "Microsoft.ContainerRegistry/registries/pull/read",
+      "Microsoft.ContainerRegistry/registries/push/write",
+      "Microsoft.Resources/subscriptions/read",
+      "Microsoft.Resources/subscriptions/resourceGroups/read"
+    ]
+  }
+
+  assignable_scopes = [
+    azurerm_resource_group.rg.id
+  ]
+}
+
+# Bind a role definition to the vm managed identity
+resource "azurerm_role_assignment" "vm_role_assignment" {
+  scope              = azurerm_resource_group.rg.id
+  role_definition_id = azurerm_role_definition.vm_role.role_definition_resource_id
+  principal_id       = azurerm_user_assigned_identity.vm_identity.principal_id
+}
+
+# Bind a role definition to the student managed identity
+resource "azurerm_role_assignment" "student_role_assignment" {
+  scope              = azurerm_resource_group.rg.id
+  role_definition_id = azurerm_role_definition.student_role.role_definition_resource_id
+  principal_id       = azurerm_user_assigned_identity.student_identity.principal_id
+}
+
+# Bind the student role definition to the vm managed identity (assume role)
+resource "azurerm_role_assignment" "vm_assume_student_role" {
+  scope              = azurerm_resource_group.rg.id
+  role_definition_id = azurerm_role_definition.student_role.role_definition_resource_id
+  principal_id       = azurerm_user_assigned_identity.vm_identity.principal_id
 }

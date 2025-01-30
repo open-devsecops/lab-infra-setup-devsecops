@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.0.0"
+    }
+  }
+}
+
 provider "azurerm" {
   features {}
   subscription_id = var.subscription_id
@@ -12,12 +21,27 @@ resource "azurerm_public_ip" "public_ip" {
   name                         = var.public_ip_name
   resource_group_name          = azurerm_resource_group.rg.name
   location                     = azurerm_resource_group.rg.location
-  allocation_method            = "Dynamic"
+  allocation_method = "Static"
   idle_timeout_in_minutes      = 4
   sku                          = "Basic"
 
   tags = {
     Name = "lab_public_ip"
+  }
+}
+
+resource "tls_private_key" "key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "null_resource" "ssh_key" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      rm -f ./'${var.ssh_key_name}'.pem 2> /dev/null
+      echo '${tls_private_key.key.private_key_pem}' > ./'${var.ssh_key_name}'.pem
+      chmod 400 ./'${var.ssh_key_name}'.pem
+    EOT
   }
 }
 
@@ -38,7 +62,7 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
-resource "azurerm_linux_virtual_machine" "vm" {
+resource "azurerm_linux_virtual_machine" "topic-2-lab" {
   name                = var.vm_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -47,6 +71,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     azurerm_network_interface.nic.id
   ]
   admin_username = var.vm_admin_username
+  
   admin_ssh_key {
     username   = var.vm_admin_username
     public_key = tls_private_key.key.public_key_openssh
@@ -69,12 +94,11 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   os_disk {
     name              = "${var.vm_name}_os_disk"
-    caching           = "ReadWrite"  # You can change this to "None" or "ReadOnly" based on your use case
-    storage_account_type = "Standard_LRS"  # You can also use "Premium_LRS" for faster disks if needed
-    disk_size_gb      = 30  # Specify the desired size of the OS disk (in GB)
+    caching           = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+    disk_size_gb      = 30
   }
 
-  # Use source_image_reference to specify the image
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
@@ -93,9 +117,4 @@ resource "azurerm_linux_virtual_machine" "vm" {
   depends_on = [
     azurerm_network_security_group.nsg
   ]
-}
-
-resource "tls_private_key" "key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
 }
