@@ -60,26 +60,34 @@ write_files:
 
 runcmd:
   # Set environment variables
+  - sudo hostnamectl set-hostname labvm
+  - sudo sed -i 's/127.0.0.1 localhost/127.0.0.1 localhost labvm/' /etc/hosts
   - echo "AZURE_SUBSCRIPTION_ID=${subscription_id}" >> /etc/environment
   - echo "REGION=${region}" >> /etc/environment
-  - export PUBLIC_IP="$(curl -H Metadata:true --noproxy '*' 'http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/ipAddress?api-version=2021-02-01&format=text')"
-
-  # Set up self-signed certificates
-  - sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx.key -out /etc/ssl/certs/nginx.crt -subj "/C=US/ST=/L=/O=open-devsecops/OU=/CN=$PUBLIC_IP"
-
+ 
+ # Set up self-signed certificates
+  - sudo touch /home/azureuser/.rnd
+  - sudo chmod 600 /home/azureuser/.rnd
+  - sudo bash -c 'PUBLIC_IP=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/ipAddress?api-version=2021-02-01&format=text"); openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx.key -out /etc/ssl/certs/nginx.crt -subj "/C=US/ST=NA/L=NA/O=open-devsecops/OU=IT/CN=$PUBLIC_IP"'
+  
   # Setup Nginx
+  - sudo chmod 640 /etc/ssl/private/nginx.key
+  - sudo chown root:www-data /etc/ssl/private/nginx.key
   - sudo rm /etc/nginx/sites-enabled/default
   - sudo mv /home/azureuser/open-devsecops/nginx/setup_nginx.conf /etc/nginx/conf.d/setup_opendevsecops.conf
   - sudo systemctl restart nginx
+
+  # Install Packages
+  - sudo apt-get install -y wireguard net-tools iptables dnsmasq npm
 
   # Setup local DNS resolver
   - sudo systemctl stop systemd-resolved.service
   - sudo systemctl disable systemd-resolved.service
   - sudo sed -i '1s/^/nameserver 169.254.169.253\n/' /etc/resolv.conf
-  - echo -e "listen-address=192.168.77.1\ncache-size=500\nneg-ttl=60\ndomain-needed\nbogus-priv\nexpand-hosts" | sudo tee /etc/dnsmasq.conf
-  - echo "192.168.77.1 jenkins.internal" | sudo tee -a /etc/hosts
-  - echo "192.168.77.1 dashboard.internal" | sudo tee -a /etc/hosts
-  - echo "192.168.77.1 api.internal" | sudo tee -a /etc/hosts
+  - sudo echo -e "listen-address=192.168.77.1\ncache-size=500\nneg-ttl=60\ndomain-needed\nbogus-priv\nexpand-hosts" > /etc/dnsmasq.conf
+  - sudo echo "192.168.77.1 jenkins.internal" >> /etc/hosts
+  - sudo echo "192.168.77.1 dashboard.internal" >> /etc/hosts
+  - sudo echo "192.168.77.1 api.internal" >> /etc/hosts
   - sudo systemctl restart dnsmasq
   - sudo systemctl enable dnsmasq
 
@@ -97,6 +105,6 @@ runcmd:
   ## - Enable and start Wireguard service
   - sudo systemctl enable wg-quick@wg0.service
   - sudo systemctl start wg-quick@wg0.service
-
+  
   # Execute init_script.sh to install tools
   - sudo bash /home/azureuser/open-devsecops/init_script.sh

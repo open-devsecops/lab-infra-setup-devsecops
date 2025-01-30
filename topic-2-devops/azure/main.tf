@@ -77,18 +77,18 @@ resource "azurerm_linux_virtual_machine" "topic-2-lab" {
     public_key = tls_private_key.key.public_key_openssh
   }
 
-  # custom_data = templatefile("cloud_init.yml.tftpl", {
-  #   wg_port                      = var.wg_port,
-  #   public_iface                 = var.public_iface,
-  #   vpn_network_address          = var.vpn_network_address,
-  #   docker_compose_b64_encoded   = filebase64("${path.root}/uploads/docker-compose.yml"),
-  #   nginx_conf_b64_encoded       = filebase64("${path.root}/uploads/nginx.conf"),
-  #   setup_nginx_conf_b64_encoded = filebase64("${path.root}/uploads/setup_nginx.conf"),
-  #   init_script_b64_encoded      = filebase64("${path.root}/uploads/init_script.sh"),
-  #   setting_up_page_b64_encoded  = filebase64("${path.root}/uploads/index.html"),
-  #   region                       = var.region,
-  #   subscription_id              = var.subscription_id
-  # })
+  user_data = base64encode(templatefile("cloud_init.yml.tftpl", {
+    wg_port                      = var.wg_port,
+    public_iface                 = var.public_iface,
+    vpn_network_address          = var.vpn_network_address,
+    docker_compose_b64_encoded   = filebase64("${path.root}/uploads/docker-compose.yml"),
+    nginx_conf_b64_encoded       = filebase64("${path.root}/uploads/nginx.conf"),
+    setup_nginx_conf_b64_encoded = filebase64("${path.root}/uploads/setup_nginx.conf"),
+    init_script_b64_encoded      = filebase64("${path.root}/uploads/init_script.sh"),
+    setting_up_page_b64_encoded  = filebase64("${path.root}/uploads/index.html"),
+    subscription_id              = var.subscription_id,
+    region                       = var.region
+  }))
   
   computer_name = substr(var.vm_name, 0, 15)
 
