@@ -60,7 +60,7 @@ variable "ssh_key_name" {
 
 variable "wg_port" {
   description = "The port for the Wireguard VPN."
-  default     = "51820"
+  default     = "21210"
 }
 
 variable "public_iface" { 
