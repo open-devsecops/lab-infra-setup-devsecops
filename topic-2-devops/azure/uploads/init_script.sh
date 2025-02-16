@@ -42,7 +42,7 @@
 set -e
 
 # 1. Fix network/DNS first
-echo -e "127.0.0.1 localhost\n127.0.1.1 labvm\n192.168.77.1 api.internal" | sudo tee /etc/hosts
+echo -e "127.0.0.1 localhost\n127.0.1.1 labvm\n192.168.77.1 jenkins.internal dashboard.internal api.internal" | sudo tee /etc/hosts
 sudo chmod 644 /etc/resolv.conf
 sudo sed -i 's/^#DNS=/DNS=8.8.8.8/' /etc/systemd/resolved.conf
 sudo systemctl restart systemd-resolved
@@ -95,5 +95,33 @@ sudo chown root:azureuser /etc/wireguard/public.key
 sudo chmod 640 /etc/wireguard/public.key
 sudo chown root:azureuser /etc/wireguard/wg0.conf
 sudo chmod 660 /etc/wireguard/wg0.conf
+
+# Update /etc/hosts
+sudo bash -c 'cat << EOF > /etc/hosts
+127.0.0.1 localhost
+
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+192.168.77.1 jenkins.internal
+192.168.77.1 dashboard.internal
+192.168.77.1 api.internal
+EOF'
+
+# Update dnsmasq.conf
+sudo bash -c 'cat << EOF > /etc/dnsmasq.conf
+listen-address=192.168.77.1
+cache-size=500
+neg-ttl=60
+domain-needed
+bogus-priv
+expand-hosts
+EOF'
+
+sudo systemctl restart dnsmasq
 
 echo "Lab Infrastructure Provisioning Complete"

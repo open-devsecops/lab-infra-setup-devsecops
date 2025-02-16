@@ -66,7 +66,9 @@ runcmd:
   # - echo "AZURE_SUBSCRIPTION_ID=${subscription_id}" >> /etc/environment
   # - echo "REGION=${region}" >> /etc/environment
   - echo "AZURE_SUBSCRIPTION_ID=e2270428-9eaa-4af7-b909-d190829450ae" | sudo tee -a /etc/environment
+  # - echo "REGION=West US" | sudo tee -a /etc/environment
   - echo "REGION=West US" | sudo tee -a /etc/environment
+  - echo "AWS_ACCOUNT_ID=535002888110" | sudo tee -a /etc/environment
   
  # Set up self-signed certificates
   - sudo touch /home/azureuser/.rnd
@@ -74,43 +76,14 @@ runcmd:
   - sudo bash -c 'PUBLIC_IP=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/ipAddress?api-version=2021-02-01&format=text"); openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx.key -out /etc/ssl/certs/nginx.crt -subj "/C=US/ST=NA/L=NA/O=open-devsecops/OU=IT/CN=$PUBLIC_IP"'
   
   # Setup Nginx
-  - sudo chmod 640 /etc/ssl/private/nginx.key
-  - sudo chown root:www-data /etc/ssl/private/nginx.key
+  # - sudo chmod 640 /etc/ssl/private/nginx.key
+  # - sudo chown root:www-data /etc/ssl/private/nginx.key
   - sudo rm /etc/nginx/sites-enabled/default
   - sudo mv /home/azureuser/open-devsecops/nginx/setup_nginx.conf /etc/nginx/conf.d/setup_opendevsecops.conf
   - sudo systemctl restart nginx
 
   # Install Packages
   - sudo apt-get install -y wireguard net-tools iptables dnsmasq npm
-
-  # Setup local DNS resolver
-  # Disable Systemd's Default DNS Resolver
-  - sudo systemctl stop systemd-resolved.service
-  - sudo systemctl disable systemd-resolved.service
-  # Modifies /etc/resolv.conf to set 169.254.169.253 as the primary nameserver. 169.254.169.253 is the Azure-provided DNS resolver for private networks.
-  - sudo sed -i '1s/^/nameserver 169.254.169.253\n/' /etc/resolv.conf
-  # Configure dnsmasq as the Local DNS Resolver
-  - sudo echo -e "listen-address=192.168.77.1\ncache-size=500\nneg-ttl=60\ndomain-needed\nbogus-priv\nexpand-hosts" | sudo tee /etc/dnsmasq.conf
-  # Define Internal Hostnames in /etc/hosts
-  # - sudo echo "192.168.77.1 jenkins.internal" >> /etc/hosts
-  - sudo echo "192.168.77.1 jenkins.internal" | sudo tee /etc/hosts
-  # - sudo echo "192.168.77.1 dashboard.internal" >> /etc/hosts
-  - sudo echo "192.168.77.1 dashboard.internal" | sudo tee /etc/hosts
-  # - sudo echo "192.168.77.1 api.internal" >> /etc/hosts
-  - sudo echo "192.168.77.1 api.internal" | sudo tee /etc/hosts
-  # Use Google’s Public DNS as a Fallback
-  # - sudo echo "server=8.8.8.8" >> /etc/dnsmasq.conf  # Google DNS
-  - sudo echo "server=8.8.8.8" | sudo tee /etc/dnsmasq.conf  # Google DNS
-  # Restart and Enable dnsmasq
-  - sudo systemctl restart dnsmasq
-  - sudo systemctl enable dnsmasq
-  # Set Up Network Address Translation
-  - sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-  # Persist iptables Rules Across Reboots
-  - sudo apt install iptables-persistent -y  # Save rules permanently
-  # Setup Wireguard
-  ## - Enable IP Forwarding
-  - sudo bash -c "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf && sysctl -p"
 
   ## - Generate Wireguard Server Private Key
   - sudo bash -c "wg genkey > /etc/wireguard/private.key && chmod go= /etc/wireguard/private.key"
@@ -122,6 +95,31 @@ runcmd:
   ## - Enable and start Wireguard service
   - sudo systemctl enable wg-quick@wg0.service
   - sudo systemctl start wg-quick@wg0.service
+
+ # Setup local DNS resolver
+  # Disable Systemd's Default DNS Resolver
+  - sudo systemctl stop systemd-resolved.service
+  - sudo systemctl disable systemd-resolved.service
+  # Modifies /etc/resolv.conf to set 169.254.169.253 as the primary nameserver. 169.254.169.253 is the Azure-provided DNS resolver for private networks.
+  - sudo sed -i '1s/^/nameserver 169.254.169.253\n/' /etc/resolv.conf
+  # Configure dnsmasq as the Local DNS Resolver
+  - sudo echo -e "listen-address=192.168.77.1\ncache-size=500\nneg-ttl=60\ndomain-needed\nbogus-priv\nexpand-hosts" | sudo tee /etc/dnsmasq.conf
+  # Define Internal Hostnames in /etc/hosts
+  - sudo echo "192.168.77.1 jenkins.internal dashboard.internal api.internal" | sudo tee -a /etc/hosts
+  # Use Google’s Public DNS as a Fallback
+  # - sudo echo "server=8.8.8.8" | sudo tee /etc/dnsmasq.conf  # Google DNS
+  # Restart and Enable dnsmasq
+  - sudo systemctl restart dnsmasq
+  - sudo systemctl enable dnsmasq
+  # Set Up Network Address Translation
+  - sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+  # Persist iptables Rules Across Reboots
+  - sudo apt install iptables-persistent -y  # Save rules permanently
+  # Setup Wireguard
+  ## - Enable IP Forwarding
+  - sudo bash -c "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf && sysctl -p"
+
+  - sudo ufw allow in on wg0 to any port 53
   
   # Execute init_script.sh to install tools
   # - sudo bash /home/azureuser/open-devsecops/init_script.sh
