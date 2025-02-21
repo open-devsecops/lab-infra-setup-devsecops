@@ -17,7 +17,7 @@ resource "azurerm_user_assigned_identity" "student_identity" {
 
 # Role Definition (aws policy)
 resource "azurerm_role_definition" "vm_role" {
-  name        = "VMRole"
+  name        = "VMRole2"
   scope       = azurerm_resource_group.rg.id
   description = "Equivalent to AWS EC2 IAM Role"
 
@@ -37,7 +37,7 @@ resource "azurerm_role_definition" "vm_role" {
 
 # Role Definition (aws policy)
 resource "azurerm_role_definition" "student_role" {
-  name        = "StudentRole"
+  name        = "StudentRole2"
   scope       = azurerm_resource_group.rg.id
   description = "Equivalent to AWS Student IAM Role"
 

@@ -1,7 +1,7 @@
 services:
   jenkins:
-    image: taehyunnkim/jenkins-docker-aws:latest
-    # image: xinyiw12/jenkins-docker-azure:latest
+    # image: taehyunnkim/jenkins-docker-aws:latest
+    image: xinyiw12/jenkins-docker-azure:latest
     restart: always
     privileged: true
     user: root

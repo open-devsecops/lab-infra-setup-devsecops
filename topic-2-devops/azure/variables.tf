@@ -73,18 +73,25 @@ variable "vpn_network_address" {
   default = "192.168.77.1/24"
 }
 
+# Added manually
+variable "aws_account_id" {
+ type        = string
+ default     = "535002888110"
+}
+
+# Added manually
+variable "subscription_id" {
+  description = "The Azure subscription ID"
+  type        = string
+  default     = "e2270428-9eaa-4af7-b909-d190829450ae"
+}
+
 variable "region" {
  type        = string
- default     = "us-west-1"
+ default     = "West US"
 }
 
 variable "nsg_name" {
   description = "The name of the network security group."
   default     = "lab_nsg"
-}
-
-variable "subscription_id" {
-  description = "The Azure subscription ID"
-  type        = string
-  default     = "e2270428-9eaa-4af7-b909-d190829450ae"
 }
