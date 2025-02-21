@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 jenkins/jenkins:lts
+FROM jenkins/jenkins:lts
 USER root
 
 RUN apt-get update -qq && \

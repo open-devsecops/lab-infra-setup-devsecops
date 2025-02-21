@@ -83,7 +83,7 @@ variable "aws_account_id" {
 variable "subscription_id" {
   description = "The Azure subscription ID"
   type        = string
-  default     = "e2270428-9eaa-4af7-b909-d190829450ae"
+  default     = "8e2e5e49-34ac-47a0-b9cb-2a79a3bba0c9"
 }
 
 variable "region" {
