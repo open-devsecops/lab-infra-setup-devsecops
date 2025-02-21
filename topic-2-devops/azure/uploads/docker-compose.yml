@@ -13,19 +13,25 @@ services:
       - /home/azureuser/jenkins_compose/jenkins_configuration:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-    - AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
-    # - AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID
+    # - AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
+    - AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID
     - REGION=$REGION
   aws-credentials-generator-web:
-    image: taehyunnkim/odso-dashboard-app-cli:latest
-    container_name: aws-credentials-generator-web
+    # image: taehyunnkim/odso-dashboard-app-cli:latest
+    image: kevinkcy511/dashboard-cleint:latest
+    # container_name: aws-credentials-generator-web
+    container_name: azure-credentials-generator-web
     ports:
       - 127.0.0.1:7777:80
   aws-credentials-generator-server:
-    image: taehyunnkim/odso-dashboard-app-api:latest
-    container_name: aws-credentials-generator-server
+    # image: taehyunnkim/odso-dashboard-app-api:latest
+    image: kevinkcy511/dashboard-backend:latest
+    # container_name: aws-credentials-generator-server
+    container_name: azure-credentials-generator-server
     ports:
       - 7778:7777
     environment:
-    - AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
+    #- AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
+    - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
     - REGION=$REGION
+
