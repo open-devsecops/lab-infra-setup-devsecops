@@ -1,13 +1,6 @@
 #!/bin/bash
 set -e
 
-# Fix network/DNS first
-echo -e "127.0.0.1 localhost\n127.0.1.1 labvm\n192.168.77.1 jenkins.internal dashboard.internal api.internal" | sudo tee /etc/hosts
-sudo chmod 644 /etc/resolv.conf
-sudo sed -i 's/^#DNS=/DNS=8.8.8.8/' /etc/systemd/resolved.conf
-sudo systemctl restart systemd-resolved
-sleep 5
-
 # Install modern Node.js
 curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 sudo apt-get install -y nodejs
@@ -70,7 +63,7 @@ ff02::3 ip6-allhosts
 192.168.77.1 api.internal
 EOF'
 
-# Update dnsmasq.conf
+# Update /etc/dnsmasq.conf
 sudo bash -c 'cat << EOF > /etc/dnsmasq.conf
 listen-address=192.168.77.1
 cache-size=500
@@ -81,5 +74,7 @@ expand-hosts
 EOF'
 
 sudo systemctl restart dnsmasq
+
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
 echo "Lab Infrastructure Provisioning Complete"
