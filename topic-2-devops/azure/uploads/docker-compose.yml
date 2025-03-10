@@ -30,7 +30,7 @@ services:
       platform: linux/amd64
       container_name: azure-credentials-generator-server
       ports:
-        - 7778:7777
+        - 7778:7778
       environment:
         - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
         - REGION=$REGION
