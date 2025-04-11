@@ -45,7 +45,8 @@ variable "vm_name" {
 
 variable "vm_size" {
   description = "The size of the virtual machine."
-  default     = "Standard_B1s"
+  # default     = "Standard_B1s"
+  default     = "Standard_B2s"
 }
 
 variable "vm_admin_username" {
@@ -83,7 +84,13 @@ variable "aws_account_id" {
 variable "subscription_id" {
   description = "The Azure subscription ID"
   type        = string
-  default     = "8e2e5e49-34ac-47a0-b9cb-2a79a3bba0c9"
+  # default     = "8e2e5e49-34ac-47a0-b9cb-2a79a3bba0c9"
+  default     = "e2270428-9eaa-4af7-b909-d190829450ae"
+}
+
+# Added manually
+variable "tenant_id" {
+  default = "f6b6dd5b-f02f-441a-99a0-162ac5060bd2"
 }
 
 variable "region" {
@@ -94,4 +101,10 @@ variable "region" {
 variable "nsg_name" {
   description = "The name of the network security group."
   default     = "lab_nsg"
+}
+
+variable "acr_name" {
+  description = "Name of the Azure Container Registry"
+  type        = string
+  default     = "labacrdevops"
 }
