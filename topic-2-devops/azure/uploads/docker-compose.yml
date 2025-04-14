@@ -13,7 +13,6 @@ services:
       - /home/azureuser/jenkins_compose/jenkins_configuration:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-    # - AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
     - AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID
     - REGION=$REGION
   aws-credentials-generator-web:
@@ -33,4 +32,5 @@ services:
         - 7778:7778
       environment:
         - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+        - ACR_NAME=${ACR_NAME}
         - REGION=$REGION
