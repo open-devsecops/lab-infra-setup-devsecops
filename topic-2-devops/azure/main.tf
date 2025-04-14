@@ -87,6 +87,7 @@ resource "azurerm_linux_virtual_machine" "topic-2-lab" {
     init_script_b64_encoded      = filebase64("${path.root}/uploads/init_script.sh"),
     setting_up_page_b64_encoded  = filebase64("${path.root}/uploads/index.html"),
     subscription_id              = var.subscription_id, 
+    acr_name                     = var.acr_name,
     aws_account_id               = var.aws_account_id,
     region                       = var.region
   }))
