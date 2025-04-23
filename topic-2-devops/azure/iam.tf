@@ -75,3 +75,4 @@ resource "azurerm_role_assignment" "vm_assume_student_role" {
   role_definition_id = azurerm_role_definition.student_role.role_definition_resource_id
   principal_id       = azurerm_user_assigned_identity.vm_identity.principal_id
 }
+
