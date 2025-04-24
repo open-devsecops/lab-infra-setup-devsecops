@@ -18,3 +18,12 @@ output "vm_public_ip" {
 output "acr_login_server" {
   value = azurerm_container_registry.acr.login_server
 }
+
+output "acr_student_token_username" {
+  value = azurerm_container_registry_token.student.name
+}
+
+output "acr_student_token_password" {
+  value     = azurerm_container_registry_token_password.student_pwd.password1
+  sensitive = true
+}

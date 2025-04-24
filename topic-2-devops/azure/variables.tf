@@ -84,13 +84,7 @@ variable "aws_account_id" {
 variable "subscription_id" {
   description = "The Azure subscription ID"
   type        = string
-  default     = "8fa24a70-a4ea-4c31-868a-f91dbef91879"
-  # default     = "e2270428-9eaa-4af7-b909-d190829450ae"
-}
-
-# Added manually
-variable "tenant_id" {
-  default = "f6b6dd5b-f02f-441a-99a0-162ac5060bd2"
+  default     = ""
 }
 
 variable "region" {
@@ -106,5 +100,5 @@ variable "nsg_name" {
 variable "acr_name" {
   description = "Name of the Azure Container Registry"
   type        = string
-  default     = "labacrdevops"
+  default     = "labacrdevops3"
 }
