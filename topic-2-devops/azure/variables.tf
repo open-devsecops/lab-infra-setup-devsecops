@@ -84,7 +84,7 @@ variable "aws_account_id" {
 variable "subscription_id" {
   description = "The Azure subscription ID"
   type        = string
-  default     = ""
+  default     = "ADD_YOUR_SUBSCRIPTION_ID"
 }
 
 variable "region" {
