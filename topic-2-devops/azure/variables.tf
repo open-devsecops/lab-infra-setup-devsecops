@@ -74,19 +74,6 @@ variable "vpn_network_address" {
   default = "192.168.77.1/24"
 }
 
-# Added manually
-variable "aws_account_id" {
- type        = string
- default     = "535002888110"
-}
-
-# Added manually
-variable "subscription_id" {
-  description = "The Azure subscription ID"
-  type        = string
-  default     = "ADD_YOUR_SUBSCRIPTION_ID"
-}
-
 variable "region" {
  type        = string
  default     = "West US"
@@ -101,4 +88,11 @@ variable "acr_name" {
   description = "Name of the Azure Container Registry"
   type        = string
   default     = "labacrdevops3"
+}
+
+# Added manually
+variable "subscription_id" {
+  description = "The Azure subscription ID"
+  type        = string
+  default     = "ADD_YOUR_SUBSCRIPTION_ID"
 }
