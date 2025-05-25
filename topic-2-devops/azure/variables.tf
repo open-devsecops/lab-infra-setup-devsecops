@@ -84,13 +84,15 @@ variable "nsg_name" {
   default     = "lab_nsg"
 }
 
+################### Added manually ###################
+
 variable "acr_name" {
   description = "Name of the Azure Container Registry"
   type        = string
-  default     = "labacrdevops3"
+  default     = "CREATE_YOUR_ACR_NAME" # MUST BE GLOBALLY UNIQUE
 }
 
-# Added manually
+
 variable "subscription_id" {
   description = "The Azure subscription ID"
   type        = string
