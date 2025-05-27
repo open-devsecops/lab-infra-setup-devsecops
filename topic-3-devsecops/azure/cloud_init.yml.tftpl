@@ -64,6 +64,7 @@ runcmd:
   - echo "AZURE_SUBSCRIPTION_ID=${subscription_id}" | sudo tee -a /etc/environment
   - echo "ACR_NAME=${acr_name}" | sudo tee -a /etc/environment
   - echo "REGION=${region}" | sudo tee -a /etc/environment
+  - echo "AWS_ACCOUNT_ID=${aws_account_id}" | sudo tee -a /etc/environment
 
  # Set up self-signed certificates
   - sudo touch /home/azureuser/.rnd

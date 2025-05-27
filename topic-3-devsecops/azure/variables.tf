@@ -75,10 +75,17 @@ variable "vpn_network_address" {
 }
 
 # Added manually
+variable "aws_account_id" {
+ type        = string
+ default     = "535002888110"
+}
+
+# Added manually
 variable "subscription_id" {
   description = "The Azure subscription ID"
   type        = string
-  default     = "ADD_YOUR_SUBSCRIPTION_ID"
+  default     = "8fa24a70-a4ea-4c31-868a-f91dbef91879"
+  # default     = "e2270428-9eaa-4af7-b909-d190829450ae"
 }
 
 # Added manually

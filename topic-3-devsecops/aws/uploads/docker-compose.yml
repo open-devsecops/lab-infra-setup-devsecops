@@ -1,36 +1,85 @@
+version: "3.8"
+
 services:
   jenkins:
-    image: taehyunnkim/odso-jenkins-topic-3:latest
+    image: xinyiw12/jenkins-docker-azure:latest
     restart: always
     privileged: true
     user: root
-    network_mode: "host"
+    ports:
+      - 8080:8080
+      - 127.0.0.1:50000:50000
     container_name: jenkins
     volumes:
-      - /home/ubuntu/jenkins_compose/jenkins_configuration:/var/jenkins_home
+      - /home/azureuser/jenkins_compose/jenkins_configuration:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-    - AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
-    - REGION=$REGION
-    - DB_USERNAME=$DB_USERNAME
-    - DB_PASSWORD=$DB_PASSWORD
+      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+      - REGION=${REGION}
+    extra_hosts:
+      - sonar.internal:192.168.77.1
+      - zap.internal:192.168.77.1
+
   aws-credentials-generator-web:
-    image: taehyunnkim/odso-dashboard-app-cli:latest
-    container_name: aws-credentials-generator-web
+    image: kevinkcy511/dashboard-frontend
+    platform: linux/amd64
+    container_name: azure-credentials-generator-web
     ports:
       - 127.0.0.1:7777:80
+
   aws-credentials-generator-server:
-    image: taehyunnkim/odso-dashboard-app-api:latest
-    container_name: aws-credentials-generator-server
+    image: kevinkcy511/dashboard-backend
+    platform: linux/amd64
+    container_name: azure-credentials-generator-server
     ports:
-      - 7778:7777
+      - 7778:7778
     environment:
-    - AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID
-    - REGION=$REGION
-  mongo:
-    image: mongo
-    container_name: mongo
-    restart: always
+      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+      - ACR_NAME=${ACR_NAME}
+      - REGION=${REGION}
+
+  sonarqube:
+    image: sonarqube:lts
+    platform: linux/amd64
+    container_name: devsecops-sonarqube
+    depends_on:
+      - db
+    ports:
+      - 9000:9000
     environment:
-    - MONGO_INITDB_ROOT_USERNAME=$DB_USERNAME
-    - MONGO_INITDB_ROOT_PASSWORD=$DB_PASSWORD
+      - SONAR_JDBC_URL=jdbc:postgresql://db:5432/sonar
+      - SONAR_JDBC_USERNAME=sonar
+      - SONAR_JDBC_PASSWORD=sonar
+
+  db:
+    image: postgres:13
+    container_name: devsecops-db
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+      - POSTGRES_DB=sonar
+    volumes:
+      - sonar_db:/var/lib/postgresql/data
+      - sonar_db_data:/var/lib/postgresql
+
+  zap-ui:
+    image: zaproxy/zap-stable
+    container_name: devsecops-zap
+    entrypoint:
+      - "zap.sh"
+      - "-daemon"
+      - "-port"
+      - "8082"
+      - "-host"
+      - "0.0.0.0"
+      - "-config"
+      - "api.disablekey=true"
+    ports:
+      - "8082:8082"
+
+# ← Declare your named volumes here:
+volumes:
+  sonar_db:
+    driver: local
+  sonar_db_data:
+    driver: local
