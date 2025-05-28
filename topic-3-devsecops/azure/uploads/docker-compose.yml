@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   jenkins:
     image: xinyiw12/jenkins-docker-azure:latest
@@ -62,7 +60,6 @@ services:
       - sonar_db:/var/lib/postgresql/data
       - sonar_db_data:/var/lib/postgresql
 
-# ← Declare your named volumes here:
 volumes:
   sonar_db:
     driver: local

@@ -74,25 +74,6 @@ variable "vpn_network_address" {
   default = "192.168.77.1/24"
 }
 
-# Added manually
-variable "aws_account_id" {
- type        = string
- default     = "535002888110"
-}
-
-# Added manually
-variable "subscription_id" {
-  description = "The Azure subscription ID"
-  type        = string
-  default     = "8fa24a70-a4ea-4c31-868a-f91dbef91879"
-  # default     = "e2270428-9eaa-4af7-b909-d190829450ae"
-}
-
-# Added manually
-variable "tenant_id" {
-  default = "f6b6dd5b-f02f-441a-99a0-162ac5060bd2"
-}
-
 variable "region" {
  type        = string
  default     = "West US"
@@ -103,8 +84,17 @@ variable "nsg_name" {
   default     = "lab_nsg"
 }
 
+################### Added manually ###################
+
 variable "acr_name" {
   description = "Name of the Azure Container Registry"
   type        = string
-  default     = "labacrdevops"
+  default     = "CREATE_YOUR_ACR_NAME" # MUST BE GLOBALLY UNIQUE
+}
+
+
+variable "subscription_id" {
+  description = "The Azure subscription ID"
+  type        = string
+  default     = "ADD_YOUR_SUBSCRIPTION_ID"
 }
