@@ -89,12 +89,12 @@ variable "nsg_name" {
 variable "acr_name" {
   description = "Name of the Azure Container Registry"
   type        = string
-  default     = "CREATE_YOUR_ACR_NAME" # MUST BE GLOBALLY UNIQUE
+  default     = "labrg" # MUST BE GLOBALLY UNIQUE
 }
 
 
 variable "subscription_id" {
   description = "The Azure subscription ID"
   type        = string
-  default     = "ADD_YOUR_SUBSCRIPTION_ID"
+  default     = "8fa24a70-a4ea-4c31-868a-f91dbef91879"
 }
